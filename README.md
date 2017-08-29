@@ -1,43 +1,102 @@
 # EchonetLite
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/echonet_lite`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: ECHONET Lite
+これはECHONET Liteプロトコルの送受信を扱うためのモジュールです。
 
 ## Installation
-
+以下のコマンドでGemパッケージをインストールします。
 Add this line to your application's Gemfile:
 
-```ruby
-gem 'echonet_lite'
+```
+$ gem install echonet_lite
 ```
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install echonet_lite
-
 ## Usage
+###送信, send
+ECHONET Lite機器に対して制御または状態の確認は以下を実行する。
 
-TODO: 使い方について
+```ruby
+EL.sendString(ip, buffer)
+EL.sendOPC1(ip,seoj,deoj,esv,epc,edt)
+```
+ip: ECHONET Lite機器のipアドレスまたは、マルチキャストアドレス（224.0.23.0）
+seoj,deoj..edt：　ECHONET Liteの[APPENDIX ECHONET機器オブジェクト詳細規定](https://echonet.jp/spec_object_rh/)を参照。
 
-## Development
+seoj,deoj等のECHONET Liteの電文構成解説は、[ECHONET Liteの電文作成方法](http://qiita.com/miyazawa_shi/items/725bc5eb6590be72970d)のページを参照する。
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+同一ネットワーク上のECHONET Lite機器に対しての探査を行う関数
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```ruby
+EL.search
+```
 
-## Contributing
+####送信例
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/echonet_lite. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+```ruby
+# SET
+EL.sendOPC1('192.168.2.163', [0x05,0xff,0x01], [0x01,0x35,0x01], 0x61, 0x80,[0x30])
+EL.sendOPC1( '192.168.2.163', [0x05,0xff,0x01], [0x01,0x35,0x01], 0x61, 0x80,0x30)
+EL.sendOPC1('224.0.23.0', [0x05,0xff,0x01], [0x01,0x35,0x01], 0x62, 0x80,0x30)
+EL.sendOPC1( '192.168.2.163', '05ff01', "013501", "61", "80", "31");
+EL.sendOPC1( '192.168.2.163', "05ff01", "013501", EL.SETC, "80", "31");
+EL.sendString('192.168.2.163',"1081000005FF010135016201800131")
+
+
+# GET
+EL.sendOPC1( '192.168.2.163', [0x05,0xff,0x01], [0x01,0x35,0x01], 0x62, 0x80)
+EL.sendOPC1('192.168.2.163', [0x05,0xff,0x01], [0x01,0x35,0x01], 0x62, 0x80)
+EL.sendOPC1( '192.168.2.163', '05ff01', "013501", "62", "80", "31");
+EL.sendOPC1( '192.168.2.163', "05ff01", "013501", EL.GET, "80", "31");
+EL.sendString('192.168.2.163',"1081000005FF01013501620180")
+EL.sendOPC1('224.0.23.0', [0x05,0xff,0x01], [0x01,0x35,0x01], 0x62, 0x80)
+
+# Search
+EL.search
+
+```
+
+###受信, Receive
+ECHONET Lite機器から送られてくるパケットを受信する。
+
+```ruby
+EL.ReceivePrint
+EL.Receive(function)
+```
+・ReceivePrintでは受信したECHOENT Lite電文をコンソールに表示する。
+・Receive(function)では開発者が作成したfunction(関数)をコールバック関数として実行させる。
+
+####受信例
+
+```ruby
+require "echonet_lite"
+
+EL.ReceivePrint
+EL.search
+text.gets
+
+# =>["1081361005ff010ef0016201d600"]
+# ["AF_INET", 63895, "192.168.2.167", "192.168.2.167"]
+# ["108136100ef00105ff017201d60401013501"]
+# ["AF_INET", 3610, "192.168.2.163", "192.168.2.163"]
+```
+
+```ruby
+require "echonet_lite"
+
+def function(msg_r=nil,ip_r=nil)
+  # 処理内容を記載する
+  p msg_r
+  p ip_r
+end
+
+EL.Receive(function)
+EL.search
+text.gets
+
+# =>["1081361005ff010ef0016201d600"]
+# ["AF_INET", 63895, "192.168.2.167", "192.168.2.167"]
+# ["108136100ef00105ff017201d60401013501"]
+# ["AF_INET", 3610, "192.168.2.163", "192.168.2.163"]
+```
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the EchonetLite project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/echonet_lite/blob/master/CODE_OF_CONDUCT.md).

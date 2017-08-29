@@ -64,7 +64,7 @@ module EL
   def self.SETC
     return 0x61
   end
-  def self.GSET
+  def self.GET
     return 0x62
   end
   def self.sendOPC1(ip,seoj,deoj,esv,epc,edt=nil)
