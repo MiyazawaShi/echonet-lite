@@ -9,8 +9,8 @@ Add this line to your application's Gemfile:
 $ gem install echonet_lite
 ```
 
-## Usage
-###送信, send
+# Usage
+##送信, send
 ECHONET Lite機器に対して制御または状態の確認は以下を実行する。
 
 ```ruby
@@ -28,7 +28,7 @@ seoj,deoj等のECHONET Liteの電文構成解説は、[ECHONET Liteの電文作�
 EL.search
 ```
 
-####送信例
+##送信例
 
 ```ruby
 # SET
@@ -53,7 +53,7 @@ EL.search
 
 ```
 
-###受信, Receive
+##受信, Receive
 ECHONET Lite機器から送られてくるパケットを受信する。
 
 ```ruby
@@ -63,7 +63,7 @@ EL.Receive(function)
 ・ReceivePrintでは受信したECHOENT Lite電文をコンソールに表示する。
 ・Receive(function)では開発者が作成したfunction(関数)をコールバック関数として実行させる。
 
-####受信例
+##受信例
 
 ```ruby
 require "echonet_lite"
