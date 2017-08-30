@@ -73,7 +73,7 @@ require "echonet_lite"
 
 EL.ReceivePrint
 EL.search
-text.gets
+text = gets
 
 # =>["1081361005ff010ef0016201d600"]
 # ["AF_INET", 63895, "192.168.2.167", "192.168.2.167"]
